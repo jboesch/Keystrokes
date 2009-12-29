@@ -27,14 +27,14 @@
 					success: function(event){
 						draw('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
 					}
-		
+			
 			}, function(event){});
 			
 			
 			// Another one!
 			$(document).bind('keystrokes.SingleItem', {
 			
-					keys: ['m', 'arrow down', 'i'],
+					keys: ['m', 'arrow down+r'],
 					success: function(event){
 						// Unbind this event after it's been successfully typed
 						$(this).unbind(event.keystrokes.stack_item.name);
@@ -75,8 +75,8 @@
 					}
 				}
 				
-				// The main callback that gets called with every successful key sequence
-				// This can be skipped by setting 'proceedToMainCallback: false' as an option in a stack item
+			// The main callback that gets called with every successful key sequence
+			// This can be skipped by setting 'proceedToMainCallback: false' as an option in a stack item
 			], function(event){
 					
 					// Maybe get the whole stack.. if you want?
@@ -87,10 +87,7 @@
 					
 					/*
 					if(data_keys[0] == 'j' && data_keys[1] == 'k'){
-						draw('You typed j then k... amazing!');
-					}
-					else if(data_keys[0] == 'h' && data_keys[1] == 'shift+p'){
-						draw('You typed h then shift+p... amazgin!');
+						draw('You typed j then k... amazing! This is the 2nd time it will be drawn');
 					}
 					*/
 					

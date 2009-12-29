@@ -190,6 +190,7 @@
 			
 			var $elem = $(elem),
 				temp_keys_down = $elem.data('keys_down');
+				
 			temp_keys_down.push(event.keyCode);
 			$elem.data('keys_down', temp_keys_down);
 			$elem.data('joined', false);
@@ -210,7 +211,6 @@
 				keys_down = $elem.data('keys_down'),
 				keys_string = $elem.data('keys_string'),
 				stack_len = stack.length;
-			
 			
 			if(keys_down.length > 1){
 			
