@@ -221,7 +221,7 @@
 				
 			}
 			else {
-			
+				
 				str = this._getStringFromCode(k);
 				
 			}
@@ -276,7 +276,13 @@
 		*/
 		_getStringFromCode: function(code){
 	
-			return (this.codes[code]) ? this.codes[code] : 'keycode ' + code + ' was not found';
+			if(this.codes[code]){
+				return this.codes[code];
+			}
+			else {
+				this._log('Keycode ' + code + ' was not found. You can add it by calling $.extend($.event.special.keystrokes.codes, { ' + code + ' : \'my key\' });');
+				return 'undefined';
+			}
 		
 		},
 		
@@ -329,7 +335,7 @@
 		* @public
 		*/
 		codes: {
-			8 : 'backspace',
+			1 : 'backspace',
 			9 : 'tab',
 			13 : 'enter',
 			16 : 'shift',
