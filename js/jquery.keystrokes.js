@@ -335,7 +335,7 @@
 		* @public
 		*/
 		codes: {
-			1 : 'backspace',
+			8 : 'backspace',
 			9 : 'tab',
 			13 : 'enter',
 			16 : 'shift',
