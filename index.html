@@ -8,7 +8,7 @@
 <script type="text/javascript">google.load('jquery','1.3.2', {uncompressed:true});</script>
 -->
 <script type="text/javascript" src="js/jquery.1.4a2.min.js"></script>
-<script type="text/javascript" src="js/jquery.keystrokes.js"></script>
+<script type="text/javascript" src="js/jquery.keystrokes.min.js"></script>
 <title>Keystrokes</title>
 
 <script type="text/javascript">	
@@ -85,7 +85,7 @@
 					// Maybe get the whole stack.. if you want?
 					var stack = event.keystrokes.stack;
 					
-					// Get the specific stackee item that was successfully typed
+					// Get the specific stack item that was successfully typed
 					var data_keys = event.keystrokes.stack_item.keys.join(', ');
 					
 					logger('<span>This is the main callback for selected successful keystrokes. To skip this call, just set "proceedToMainCallback: false" in your stack item: </span> ' + data_keys);

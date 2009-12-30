@@ -35,7 +35,7 @@
 		add: function(h, data, namespaces){
 			
 			var $elem = $(this),
-				handler = $.event.special[keystrokes]['handler'];
+				delegate = $.event.special[keystrokes]._delegate;
 			
 			// We can pass a large stack of objects or just a single object
 			var stack = $.isArray(data) ? data : [data];
@@ -58,7 +58,7 @@
 				var i = events_len;
 				
 				while(i--){
-					$elem.bind(events[i] + '.' + namespaces[0], handler);
+					$elem.bind(events[i] + '.' + namespaces[0], delegate);
 				}
 				
 			}
@@ -67,7 +67,7 @@
 				var i = events_len;
 				
 				while(i--){
-					$elem.bind(events[i], handler);
+					$elem.bind(events[i], delegate);
 				}
 			
 			}
@@ -128,10 +128,10 @@
 		
 		/**
 		* The function that gets called when the attached events fire. Dynamically fires a method based on event type
-		* @public
+		* @private
 		* @param {Object} e Carrying the event data
 		*/
-		handler: function(e){
+		_delegate: function(e){
 			
 			$.event.special[keystrokes]['_' + e.type].call($.event.special[keystrokes], e, this);
 			
