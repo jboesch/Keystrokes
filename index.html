@@ -56,7 +56,7 @@
 					// If false, this will not execute the main callback, only the "success" callback on this stack item
 					proceedToMainCallback: false,
 					// The callback bound to this specific stack item
-					success: function(event, element){
+					success: function(event){
 						logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>.  This has "proceedToMainCallback: false" so it will not call the main callback for this bound event.</em>');
 					}
 					
@@ -65,7 +65,7 @@
 					// Define typed keys in sequence
 					keys: ['j', 'k'],
 					// The callback bound to this specific stack item
-					success: function(event, element){
+					success: function(event){
 						logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
 					}
 				},
@@ -73,7 +73,7 @@
 					// Define typed keys in sequence
 					keys: ['arrow up+comma+k', 1, 2, 3],
 					// The callback bound to this specific stack item
-					success: function(event, element){
+					success: function(event){
 						logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
 					}
 				}
@@ -125,7 +125,8 @@
 		width:25%;
 		overflow:scroll;
 		border:1px solid #ccc;
-		float:left;
+		position:fixed;
+		top:10px;
 	}
 	h3 {
 		padding:10px;
@@ -134,8 +135,7 @@
 		color:#fff;
 	}
 	#info-box {
-		float:left;
-		margin:0 0 0 20px;
+		margin:0 0 0 30%;
 		width:60%;
 	}
 	pre {
@@ -152,9 +152,10 @@
 </div>
 <div id="info-box">
 	<h3>Examples</h3>
-	<p>All keys strokes you make that are successful will be logged into the log box on the side.</p>
+	<p>All keys strokes you make that are successful will be logged into the log box on the side.  Debugging is enabled so if you have Firebug you can open up the console and see the keys you are typing.</p>
 	
-	<h4>Example #1</h4>
+	<h4>Example #1 - Basic</h4>
+	<p>This is the most basic usage. Specify the keys in an array and run the callback on success.</p>
 	<pre>
 $(document).bind('keystrokes', {
 		
@@ -167,7 +168,8 @@ $(document).bind('keystrokes', {
 });
 </pre>
 
-	<h4>Example #2</h4>
+	<h4>Example #2 - Basic</h4>
+	<p>This is an example using a namespace on the event.  Once the specified keys are successfully typed, it will run the callback and unbind the event.</p>
 	<pre>
 $(document).bind('keystrokes.SingleItem', {
 			
@@ -181,6 +183,56 @@ $(document).bind('keystrokes.SingleItem', {
 	
 });	
 	</pre>
+	
+	<h4>Example #3 - Advanced</h4>
+	<p>In this example you can pass in an array of key sets as data.  You can also specify a "success" callback for each key set. The main callback at the end gets called whenever you successfully complete any one of the key combinations in the array stack.  You can avoid the main callback from being called by adding 'proceedToMainCallback: false' to the key set.</p>
+<pre>
+$(document).bind('keystrokes.OtherNameSpace', [
+			
+	{
+		// Define typed keys in sequence
+		keys: ['h', 'shift+p+o'],
+		// If false, this will not execute the main callback, only the &quot;success&quot; callback on this stack item
+		proceedToMainCallback: false,
+		// The callback bound to this specific stack item
+		success: function(event){
+			logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt;.  This has &quot;proceedToMainCallback: false&quot; so it will not call the main callback for this bound event.&lt;/em&gt;');
+		}
+		
+	},
+	{
+		// Define typed keys in sequence
+		keys: ['j', 'k'],
+		// The callback bound to this specific stack item
+		success: function(event){
+			logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt;');
+		}
+	},
+	{
+		// Define typed keys in sequence
+		keys: ['arrow up+comma+k', 1, 2, 3],
+		// The callback bound to this specific stack item
+		success: function(event){
+			logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt;');
+		}
+	}
+	
+// The main callback that gets called with every successful key sequence
+// This can be skipped by setting 'proceedToMainCallback: false' as an option in a stack item
+], function(event){
+		
+		// Maybe get the whole stack.. if you want?
+		var stack = event.keystrokes.stack;
+		
+		// Get the specific stackee item that was successfully typed
+		var data_keys = event.keystrokes.stack_item.keys.join(', ');
+		
+		logger('&lt;span&gt;This is the main callback for selected successful keystrokes. To skip this call, just set &quot;proceedToMainCallback: false&quot; in your stack item: &lt;/span&gt; ' + data_keys);
+	
+	}
+);
+
+</pre>
 </div>
 </body>
 </html>
