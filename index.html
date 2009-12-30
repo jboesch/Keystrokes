@@ -16,35 +16,38 @@
 	jQuery(function($){
 			
 			// Add/modify event key codes to meet your own needs
-			$.extend($.event.special.keystrokes.codes, { 133234 : 'my fake key' });
+			// $.extend($.event.special.keystrokes.codes, { 133234 : 'my fake key' });
 			
 			// Debugging to the console
 			$.event.special.keystrokes.debug = true;
 			
-			$(document).bind('keystrokes.NameSpace', {
+			// Basic setup
+			$(document).bind('keystrokes', {
 		
-					keys: ['i', 'p'],
-					success: function(event){
-						draw('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
-					}
+					keys: ['i', 'p']
+					
+			}, function(event){
+				
+				logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
+				
+			});
 			
-			}, function(event){});
 			
-			
-			// Another one!
+			// Baic setup with namespace
 			$(document).bind('keystrokes.SingleItem', {
 			
-					keys: ['m', 'arrow down+r'],
-					success: function(event){
-						// Unbind this event after it's been successfully typed
-						$(this).unbind(event.keystrokes.stack_item.name);
-						draw('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>.  You cannot type it again because it has been unbound!');
-					}
+					keys: ['m', 'arrow down+r']
 					
-			}, function(event){});
+			}, function(event){
+			
+				// Unbind this event after it's been successfully typed
+				$(this).unbind(event.keystrokes.stack_item.name);
+				logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>.  You cannot type it again because it has been unbound!');
+				
+			});
 		
 			
-			// Bind the brand spankin' new keystrokes event
+			// Advanced setup with namespace, multiple keystrokes and custom success callbacks for each one
 			$(document).bind('keystrokes.OtherNameSpace', [
 			
 				{
@@ -54,7 +57,7 @@
 					proceedToMainCallback: false,
 					// The callback bound to this specific stack item
 					success: function(event, element){
-						draw('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>.  This has "proceedToMainCallback: false" so it will not call the main callback for this bound event.</em>');
+						logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>.  This has "proceedToMainCallback: false" so it will not call the main callback for this bound event.</em>');
 					}
 					
 				},
@@ -63,7 +66,7 @@
 					keys: ['j', 'k'],
 					// The callback bound to this specific stack item
 					success: function(event, element){
-						draw('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
+						logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
 					}
 				},
 				{
@@ -71,7 +74,7 @@
 					keys: ['arrow up+comma+k', 1, 2, 3],
 					// The callback bound to this specific stack item
 					success: function(event, element){
-						draw('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
+						logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
 					}
 				}
 				
@@ -85,28 +88,21 @@
 					// Get the specific stackee item that was successfully typed
 					var data_keys = event.keystrokes.stack_item.keys.join(', ');
 					
-					/*
-					if(data_keys[0] == 'j' && data_keys[1] == 'k'){
-						draw('You typed j then k... amazing! This is the 2nd time it will be drawn');
-					}
-					*/
-					
-					draw('<span>This is the main callback for selected successful keystrokes. To skip this call, just set "proceedToMainCallback: false" in your stack item: </span> ' + data_keys);
+					logger('<span>This is the main callback for selected successful keystrokes. To skip this call, just set "proceedToMainCallback: false" in your stack item: </span> ' + data_keys);
 				
 				}
 			);
+		
+		
+		// Specific to this example, log everything to a little log box
+		function logger(str){
+		
+			var log_box = $('#log-box');
+			log_box.append('<div class="typed">' + str + '</div>');
+			log_box.attr('scrollTop', log_box.attr('scrollHeight'));
 			
-		function draw(str){
-			$('body').append('<div class="typed">' + str + '</div>');
 		}	
 		
-		// Unbind an event after 10 seconds!
-		setTimeout(function(){
-			
-			$(document).unbind('keystrokes.NameSpace');
-			draw('keystrokes.NameSpace has been unbound! It was on a 10 second timer since the document was ready.  You can no longer type: <em>i, p</em>');
-			
-		}, 10000);
 			
 	});
 	
@@ -116,6 +112,7 @@
 		background:#eee;
 		padding:5px;
 		border-bottom:1px solid #ccc;
+		font-size:14px;
 	}
 	.typed em {
 		font-weight:bold;
@@ -123,9 +120,67 @@
 	.typed span {
 		color:green;
 	}
+	#log-box {
+		height:400px;
+		width:25%;
+		overflow:scroll;
+		border:1px solid #ccc;
+		float:left;
+	}
+	h3 {
+		padding:10px;
+		margin:0;
+		background:#666;
+		color:#fff;
+	}
+	#info-box {
+		float:left;
+		margin:0 0 0 20px;
+		width:60%;
+	}
+	pre {
+		background:#FBFFCF;
+		padding:10px;
+		overflow:scroll;
+	}
 </style>
 </head>
 <body>
+
+<div id="log-box">
+	<h3>Log Box</h3>
+</div>
+<div id="info-box">
+	<h3>Examples</h3>
+	<p>All keys strokes you make that are successful will be logged into the log box on the side.</p>
 	
+	<h4>Example #1</h4>
+	<pre>
+$(document).bind('keystrokes', {
+		
+		keys: ['i', 'p']
+					
+}, function(event){
+				
+	logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt;');
+				
+});
+</pre>
+
+	<h4>Example #2</h4>
+	<pre>
+$(document).bind('keystrokes.SingleItem', {
+			
+		keys: ['m', 'arrow down+r']
+		
+}, function(event){
+
+	// Unbind this event after it's been successfully typed
+	$(this).unbind(event.keystrokes.stack_item.name);
+	logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt;.  You cannot type it again because it has been unbound!');
+	
+});	
+	</pre>
+</div>
 </body>
 </html>

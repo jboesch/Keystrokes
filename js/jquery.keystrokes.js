@@ -28,27 +28,29 @@
 		/**
 		* As soon as the keystrokes event is attached with "bind", it runs this each bind (jQuery 1.4)
 		* @public
-		* @param {Function} handler 
+		* @param {Function} h Custom function handler 
 		* @param {Object} data The data that is passed to it from the bind call (2nd param)
 		* @param {Array} namespaces A collection of namespaces separated by a period (.) - *not supported*
 		*/
-		add: function(handler, data, namespaces){
+		add: function(h, data, namespaces){
 			
 			var $elem = $(this),
 				handler = $.event.special[keystrokes]['handler'];
 			
 			// We can pass a large stack of objects or just a single object
-			data.stack = $.isArray(data) ? data : [data];
+			var stack = $.isArray(data) ? data : [data];
 			
 			// Attach the proper namespace to each stack item for easy unbinding later (comparing and splicing)
-			data.stack = $.event.special[keystrokes]['_addNamespacingKey'].call(this, data.stack, namespaces);
+			stack = $.event.special[keystrokes]._addPrivateKeys.call(this, stack, namespaces, h);
 			
 			// If it's already set, we need to add to the element, not overwrite it
-			if($elem.data('stack')){
-				$elem.data('stack', $elem.data('stack').concat(data.stack));
+			var tmp_stack = $elem.data('stack');
+			
+			if(tmp_stack){
+				$elem.data('stack', tmp_stack.concat(stack));
 			}
 			else {
-				$elem.data('stack', data.stack);
+				$elem.data('stack', stack);
 			}
 			
 			if(namespaces.length){
@@ -103,7 +105,7 @@
 			}
 			
 			// Remove keys that it's listening for
-			$.event.special[keystrokes]['_removeKeyListeners'].call(this, name);
+			$.event.special[keystrokes]._removeKeyListeners.call(this, name);
 			
 		},
 		
@@ -141,16 +143,19 @@
 		* @private
 		* @param {Array} data_stack Collection of all keystrokes bound to a specific event
 		* @param {Array} namespaces Namespaces that are associated with the event
+		* @param {Function} handler The custom function handler for this key set
 		*/
-		_addNamespacingKey: function(data_stack, namespaces){
+		_addPrivateKeys: function(data_stack, namespaces, handler){
 			
 			var i = data_stack.length;
 			
 			while(i--){
 				// Public - entire namespace including the event type
-				data_stack[i]['name'] = (namespaces[0]) ? keystrokes + '.' + namespaces[0] : keystrokes;
+				data_stack[i].name = (namespaces[0]) ? keystrokes + '.' + namespaces[0] : keystrokes;
 				// Private - either the namespace or event type
-				data_stack[i]['_namespace'] = namespaces[0] || keystrokes;
+				data_stack[i]._namespace = namespaces[0] || keystrokes;
+				delete handler.data;
+				data_stack[i]._handler = handler;
 			}
 			
 			return data_stack;
@@ -170,7 +175,7 @@
 			
 			while(stack_len--){
 				
-				if(stack[stack_len]['_namespace'] === name){
+				if(stack[stack_len]._namespace === name){
 					stack.splice(stack_len, 1);
 				}
 				
@@ -299,16 +304,16 @@
 			event.type = keystrokes;
 			event[keystrokes] = {};
 			event[keystrokes]['stack'] = stack;
-			event[keystrokes]['stack_item'] = stack[stack_arr_key];
+			event[keystrokes].stack_item = stack[stack_arr_key];
 			
 			// Custom callback specific to that key item
-			if(typeof(stack[stack_arr_key]['success']) === 'function'){
-				stack[stack_arr_key]['success'].call(elem, event);
+			if(typeof(stack[stack_arr_key].success) === 'function'){
+				stack[stack_arr_key].success.call(elem, event);
 			}
 			
 			// Global callback for all successfully typed key items
-			if(stack[stack_arr_key]['proceedToMainCallback'] !== false){
-				jQuery.event.handle.apply(elem, [event]);
+			if(stack[stack_arr_key].proceedToMainCallback !== false){
+				stack[stack_arr_key]['_handler'].apply(elem, [event]);
 			}
 			
 			$(elem).data('keys_string', []);
@@ -426,8 +431,8 @@
 			123 : 'f12',
 			144 : 'num lock',
 			145 : 'scroll lock',
-			182 : 'my Computer (multimedia keyboard)',
-			183 : 'my Calculator (multimedia keyboard)',
+			182 : 'my computer (multimedia keyboard)',
+			183 : 'my calculator (multimedia keyboard)',
 			186 : 'semi-colon',
 			187 : 'equal sign',
 			188 : 'comma',
