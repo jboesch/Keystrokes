@@ -20,6 +20,19 @@
 			
 			// Debugging to the console
 			$.event.special.keystrokes.debug = true;
+			//$.event.special.keystrokes.global.captureInputFields = true;
+			/*
+			$.event.special.keystrokes.global.customValidation = function(event, stack){
+				// 'this' refers to the element that is bound
+				// console.log(this, event, stack);
+				// Make sure we're not capturing keystrokes on an input
+				if($(event.target).not(':input').length){
+					alert('Your keystrokes validates successfully through the global custom validation!');
+					return true;
+				}
+				return false;
+			}
+			*/
 			
 			// Basic setup
 			$(document).bind('keystrokes', {
@@ -92,6 +105,23 @@
 				}
 			);
 		
+		// Setup with custom validation
+		$(document).bind('keystrokes.CustomValidation', {
+	
+				keys: ['c', 'v'],
+				customValidation: function(event, stack){
+					// 'this' refers to the element that is bound
+					// console.log(this, event, stack);
+					// You can check $(event.target) here to make sure it's something specific
+					return true;
+
+				}
+				
+		}, function(event){
+			
+			logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em>');
+			
+		});
 		
 		// Specific to this example, log everything to a little log box
 		function logger(str){
@@ -232,6 +262,36 @@ $(document).bind('keystrokes.OtherNameSpace', [
 );
 
 </pre>
+
+
+
+<h4>Example #4 - Custom Validation</h4>
+	<p>You can write a custom validation method where you call the shots! This can be used for checking $(event.target).is('iframe') or whatever you want.  Return <em>true</em> if your check passes and <em>false</em> if it doesn't.</p>
+<!--
+Input: <input type="text" id="myinput" />
+Textarea: <textarea id="mytext"></textarea>
+-->
+<pre>
+// Setup with custom validation
+$(document).bind('keystrokes.CustomValidation', {
+
+		keys: ['c', 'v'],
+		customValidation: function(event, stack){
+			// 'this' refers to the element that is bound
+			// console.log(this, event, stack);
+			// You can check $(event.target) here to make sure it's something specific
+			return true;
+
+		}
+		
+}, function(event){
+	
+	logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt;');
+	
+});
+
+</pre>
+
 </div>
 </body>
 </html>

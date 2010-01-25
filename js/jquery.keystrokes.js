@@ -26,6 +26,21 @@
 		debug: false,
 		
 		/**
+		* Any set globals will be found in here
+		* @public
+		*/
+		global: {
+			// If we attach keystrokes to the document, we don't want to listen on input fields
+			captureInputFields: false,
+			inputs: 'input, textarea'
+		},
+		/**
+		* A boolean to see if we've bound the focusin/focusout events for input elements
+		* @private
+		*/
+		_inputsBound: false,
+		
+		/**
 		* As soon as the keystrokes event is attached with "bind", it runs this each bind (jQuery 1.4)
 		* @public
 		* @param {Function} h Custom function handler 
@@ -190,7 +205,28 @@
 		_keydown: function(event, elem){
 			
 			var $elem = $(elem),
+				self = this,
 				temp_keys_down = $elem.data('keys_down');
+			
+			// We check to see if we want to capture keystrokes on input fields
+			if(!this.global.captureInputFields){
+			
+				if(!this._inputsBound){
+					
+					$(this.global.inputs).bind({
+						"focusin.Keystrokes" : function(e){
+							self._clearKeysString(elem);
+						},
+						"focusout.Keystrokes"  : function(e){
+							self._clearKeysString(elem);
+						}
+					});
+					
+					this._inputsBound = true;
+					
+				}
+				return;
+			}
 				
 			temp_keys_down.push(event.keyCode);
 			$elem.data('keys_down', temp_keys_down);
@@ -212,6 +248,11 @@
 				keys_down = $elem.data('keys_down'),
 				keys_string = $elem.data('keys_string'),
 				stack_len = stack.length;
+			
+			// We check to see if we want to capture keystrokes on input fields
+			if(!this.global.captureInputFields && $(event.target).not(':input').length == 0){
+				return;
+			}
 			
 			if(keys_down.length > 1){
 			
@@ -304,6 +345,24 @@
 			event[keystrokes]['stack'] = stack;
 			event[keystrokes].stack_item = stack[stack_arr_key];
 			
+			// Global custom validation
+			if(typeof(this.global.customValidation) === 'function'){
+				var ret = this.global.customValidation.call(elem, event, stack);
+				if(!ret){
+					this._clearKeysString(elem);
+					return;
+				}
+			}
+			
+			// Custom validation to find out whether or not we can proceed
+			if(typeof(stack[stack_arr_key].customValidation) === 'function'){
+				var ret = stack[stack_arr_key].customValidation.call(elem, event, stack);
+				if(!ret){
+					this._clearKeysString(elem);
+					return;
+				}
+			}
+			
 			// Custom callback specific to that key item
 			if(typeof(stack[stack_arr_key].success) === 'function'){
 				stack[stack_arr_key].success.call(elem, event);
@@ -311,11 +370,23 @@
 			
 			// Global callback for all successfully typed key items
 			if(stack[stack_arr_key].proceedToMainCallback !== false){
-				stack[stack_arr_key]['_handler'].apply(elem, [event]);
+				stack[stack_arr_key]._handler.apply(elem, [event]);
 			}
 			
-			$(elem).data('keys_string', []);
+			this._clearKeysString(elem);
+			
 		
+		},
+		
+		/**
+		* Clear all the keys typed that were successfull
+		* @private
+		* @param {Object} e The HTML element that has the keys_string data bound to it
+		*/
+		_clearKeysString: function(e){
+			
+			$(e).data('keys_string', []);
+			
 		},
 		
 		/**
