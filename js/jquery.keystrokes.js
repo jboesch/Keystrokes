@@ -5,7 +5,7 @@
 * Copyright (c) 2009 Jordan Boesch
 * Dual licensed under the MIT and GPL licenses.
 *
-* Date: January 25, 2009
+* Date: January 25, 2010
 * Version: 1.1
 */
 
