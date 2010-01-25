@@ -209,7 +209,7 @@
 				temp_keys_down = $elem.data('keys_down');
 			
 			// We check to see if we want to capture keystrokes on input fields
-			if(!this.global.captureInputFields){
+			if(!this.global.captureInputFields && $(event.target).not(':input').length == 0){
 			
 				if(!this._inputsBound){
 					
