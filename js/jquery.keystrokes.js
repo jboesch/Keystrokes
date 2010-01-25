@@ -5,8 +5,8 @@
 * Copyright (c) 2009 Jordan Boesch
 * Dual licensed under the MIT and GPL licenses.
 *
-* Date: December 30, 2009
-* Version: 1.0
+* Date: January 25, 2009
+* Version: 1.1
 */
 
 (function($){
@@ -46,12 +46,8 @@
 			// If it's already set, we need to add to the element, not overwrite it
 			var tmp_stack = $elem.data('stack');
 			
-			if(tmp_stack){
-				$elem.data('stack', tmp_stack.concat(stack));
-			}
-			else {
-				$elem.data('stack', stack);
-			}
+			stack = (tmp_stack) ? tmp_stack.concat(stack) : stack;
+			$elem.data('stack', stack);
 			
 			if(namespaces.length){
 				
@@ -240,10 +236,12 @@
 			}
 			
 			// Check if we've found a matching key pattern
-			var i = stack_len;
+			var i = stack_len,
+				keys_s = ('|' + keys_string.join('|') + '|');
+			
 			
 			while(i--){
-				if(stack[i] && keys_string.join('|').indexOf(stack[i].keys.join('|')) !== -1){
+				if(stack[i] && keys_s.indexOf('|' + stack[i].keys.join('|') + '|') !== -1){
 					this._valid(elem, event, stack, i);
 				}
 			}
