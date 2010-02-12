@@ -6,6 +6,11 @@ http://boedesign.com/blog/2009/12/30/keystrokes-for-jquery/
 
 ## Change Log
 
+### Changes in 1.3 (February 12, 2010)
+
+* Added "teardown" method to clean up data on the bound element.
+* Using jQuery 1.4.1 from Google CDN in the example.
+
 ### Changes in 1.2 (January 25, 2010)
 
 * Added default global setting to ignore key capturing when you're on an input/textarea element.  

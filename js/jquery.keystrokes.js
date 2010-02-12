@@ -42,7 +42,7 @@
 		
 		/**
 		* As soon as the keystrokes event is attached with "bind", it runs this each bind (jQuery 1.4)
-		* @public
+		* @private/public
 		* @param {Function} h Custom function handler 
 		* @param {Object} data The data that is passed to it from the bind call (2nd param)
 		* @param {Array} namespaces A collection of namespaces separated by a period (.) - *not supported*
@@ -87,7 +87,7 @@
 		
 		/**
 		* As soon as the keystrokes event is detached with "unbind", it runs this each unbind call
-		* @public
+		* @private/public
 		* @param {Array} namespaces A collection of namespaces separated by a period (.) - *not supported*
 		*/
 		remove: function(namespaces){
@@ -122,7 +122,7 @@
 		
 		/**
 		* As soon as an event is bound, setup runs only once to set some default data for that element
-		* @public
+		* @private/public
 		* @param {Object} data Any data we pass to the bound event
 		* @param {Array} namespaces Namespaces that are associated with the event
 		*/
@@ -133,6 +133,21 @@
 			$elem.data('keys_down', []);
 			$elem.data('keys_string', []);
 			$elem.data('joined', false);
+			
+		},
+		
+		/**
+		* Called when the last element is unbound for the bound item
+		* @private/public
+		* @param {Array} namespaces Namespaces that are associated with the event
+		*/
+		teardown: function(namespaces){
+			
+			var $elem = $(this);
+			$elem.removeData('keys_down');
+			$elem.removeData('keys_string');
+			$elem.removeData('joined');
+			$elem.removeData('stack');
 			
 		},
 		
