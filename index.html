@@ -5,13 +5,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript">google.load('jquery','1.4.1');</script>
+<script type="text/javascript">google.load('jquery','1.4.2');</script>
 <script type="text/javascript" src="js/jquery.keystrokes.min.js"></script>
 <title>Keystrokes</title>
 
 <script type="text/javascript">	
 	
 	jQuery(function($){
+
 			
 			// Add/modify event key codes to meet your own needs
 			// $.extend($.event.special.keystrokes.codes, { 133234 : 'my fake key' });
@@ -43,7 +44,7 @@
 				
 			});
 			
-			// Baic setup with namespace
+			// Basic setup with namespace
 			$(document).bind('keystrokes.SingleItem', {
 			
 					keys: ['m', 'arrow down+r']
@@ -121,6 +122,14 @@
 			
 		});
 		
+		// Set it up on the input
+		$('input').bind('keystrokes', { keys: ['i','n'] }, function(event){ 
+			
+			logger('You typed : <em>' + event.keystrokes.stack_item.keys.join(', ') + '</em> on the input.  Now it\'s unbound!  No more typing it for you.');
+			$(this).unbind(event.keystrokes.stack_item.name);
+			
+		});
+		
 		// Specific to this example, log everything to a little log box
 		function logger(str){
 		
@@ -162,7 +171,7 @@
 		color:#fff;
 	}
 	#info-box {
-		margin:0 0 0 30%;
+		padding:0 0 0 30%;
 		width:60%;
 	}
 	pre {
@@ -290,6 +299,18 @@ $(document).bind('keystrokes.CustomValidation', {
 
 </pre>
 
+<h4>Example #5 - Attaching to inputs</h4>
+<p>By default, it will not pickup keys typed in an input/textarea UNLESS you bind them directly to an input/textarea and are focused on the input.</p>
+<pre>
+// Set it up on the input
+$('input').bind('keystrokes', { keys: ['i','n'] }, function(event){ 
+	
+	logger('You typed : &lt;em&gt;' + event.keystrokes.stack_item.keys.join(', ') + '&lt;/em&gt; on the input.  Now it\'s unbound!  No more typing it for you.');
+	$(this).unbind(event.keystrokes.stack_item.name);
+	
+});
+</pre>
+<input type="text" name="hi" />
 </div>
 </body>
 </html>

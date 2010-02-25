@@ -6,6 +6,12 @@ http://boedesign.com/blog/2009/12/30/keystrokes-for-jquery/
 
 ## Change Log
 
+### Changes in 2.0 (February 25, 2010)
+
+* Made it compatible with jQuery 1.4.2 (now it does not work with versions lower than 1.4.2... sorry!)
+* Automatically does not detect keyup/keydown events on inputs/textarea (unless you bind it directly to the input and are focused on it)
+* Removed global.captureInputFields as a result ^
+
 ### Changes in 1.3 (February 12, 2010)
 
 * Added "teardown" method to clean up data on the bound element.

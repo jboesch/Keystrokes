@@ -2,20 +2,19 @@
 * Keystrokes event for jQuery
 * http://www.boedesign.com/
 *
-* Copyright (c) 2009 Jordan Boesch
+* Copyright (c) 2010 Jordan Boesch
 * Dual licensed under the MIT and GPL licenses.
+* 
+* This is ONLY compatible with jQuery 1.4.2 or higher... sorry!
 *
-* Date: January 25, 2010
-* Version: 1.1
+* Date: February 25, 2010
+* Version: 1.2 
 */
 
 (function($){
 
-	// Special event
-	var keystrokes = 'keystrokes',
-		// Attach these events on setup()
-		events = ['keydown', 'keyup'],
-		events_len = events.length;
+	// Special event... oh so special
+	var keystrokes = 'keystrokes';
 	
 	$.event.special[keystrokes] = {
 		
@@ -30,24 +29,19 @@
 		* @public
 		*/
 		global: {
-			// If we attach keystrokes to the document, we don't want to listen on input fields
-			captureInputFields: false,
-			inputs: 'input, textarea'
+			customValidation: null
 		},
-		/**
-		* A boolean to see if we've bound the focusin/focusout events for input elements
-		* @private
-		*/
-		_inputsBound: false,
 		
 		/**
 		* As soon as the keystrokes event is attached with "bind", it runs this each bind (jQuery 1.4)
 		* @private/public
-		* @param {Function} h Custom function handler 
-		* @param {Object} data The data that is passed to it from the bind call (2nd param)
-		* @param {Array} namespaces A collection of namespaces separated by a period (.) - *not supported*
+		* @param {Object} obj An object passed that contains data, namespaces and a handler
 		*/
-		add: function(h, data, namespaces){
+		add: function(obj){
+
+			var h = obj.handler,
+				data = obj.data,
+				namespace = obj.namespace;
 			
 			var $elem = $(this),
 				delegate = $.event.special[keystrokes]._delegate;
@@ -56,7 +50,7 @@
 			var stack = $.isArray(data) ? data : [data];
 			
 			// Attach the proper namespace to each stack item for easy unbinding later (comparing and splicing)
-			stack = $.event.special[keystrokes]._addPrivateKeys.call(this, stack, namespaces, h);
+			stack = $.event.special[keystrokes]._addPrivateKeys.call(this, stack, namespace, h);
 			
 			// If it's already set, we need to add to the element, not overwrite it
 			var tmp_stack = $elem.data('stack');
@@ -64,71 +58,33 @@
 			stack = (tmp_stack) ? tmp_stack.concat(stack) : stack;
 			$elem.data('stack', stack);
 			
-			if(namespaces.length){
-				
-				var i = events_len;
-				
-				while(i--){
-					$elem.bind(events[i] + '.' + namespaces[0], delegate);
-				}
-				
-			}
-			else {
-			
-				var i = events_len;
-				
-				while(i--){
-					$elem.bind(events[i], delegate);
-				}
-			
-			}
-			
 		},
 		
 		/**
 		* As soon as the keystrokes event is detached with "unbind", it runs this each unbind call
 		* @private/public
-		* @param {Array} namespaces A collection of namespaces separated by a period (.) - *not supported*
+		* @param {Object} obj An object passed that contains data, namespace, handler etc
 		*/
-		remove: function(namespaces){
-			
-			var $elem = $(this),
-				name = keystrokes;
-			
-			if(namespaces.length){
-				
-				var i = events_len,
-					name = namespaces[0];
-					
-				while(i--){
-					$elem.unbind(events[i] + '.' + namespaces[0]);
-				}
-				
-			}
-			else {
-			
-				var i = events_len;
-				
-				while(i--){
-					$elem.unbind(events[i]);
-				}
-			
-			}
+		remove: function(obj){
 			
 			// Remove keys that it's listening for
-			$.event.special[keystrokes]._removeKeyListeners.call(this, name);
+			$.event.special[keystrokes]._removeKeyListeners.call(this, obj.namespace || keystrokes);
 			
 		},
 		
 		/**
 		* As soon as an event is bound, setup runs only once to set some default data for that element
 		* @private/public
-		* @param {Object} data Any data we pass to the bound event
+		* @param {Object} obj Object containing data/handlers etc
 		* @param {Array} namespaces Namespaces that are associated with the event
+		* @param {Function} handler The event handler tied to the bound element
 		*/
-		setup: function(data, namespaces){
+		setup: function(obj, namespaces, handler){
 			
-			var $elem = $(this);
+			var $elem = $(this),
+				delegate = $.event.special[keystrokes]._delegate;
+			
+			$elem.bind('keyup.' + keystrokes, delegate).bind('keydown.' + keystrokes, delegate);
 			
 			$elem.data('keys_down', []);
 			$elem.data('keys_string', []);
@@ -144,6 +100,9 @@
 		teardown: function(namespaces){
 			
 			var $elem = $(this);
+			
+			$elem.unbind('keyup.' + keystrokes).unbind('keydown.' + keystrokes);	
+			
 			$elem.removeData('keys_down');
 			$elem.removeData('keys_string');
 			$elem.removeData('joined');
@@ -168,18 +127,18 @@
 		* This makes it easy for unbinding and removing the listening for certain keys
 		* @private
 		* @param {Array} data_stack Collection of all keystrokes bound to a specific event
-		* @param {Array} namespaces Namespaces that are associated with the event
+		* @param {Array} namespace Namespace that is associated with the event
 		* @param {Function} handler The custom function handler for this key set
 		*/
-		_addPrivateKeys: function(data_stack, namespaces, handler){
+		_addPrivateKeys: function(data_stack, namespace, handler){
 			
 			var i = data_stack.length;
 			
 			while(i--){
 				// Public - entire namespace including the event type
-				data_stack[i].name = (namespaces[0]) ? keystrokes + '.' + namespaces[0] : keystrokes;
+				data_stack[i].name = (namespace) ? keystrokes + '.' + namespace : keystrokes;
 				// Private - either the namespace or event type
-				data_stack[i]._namespace = namespaces[0] || keystrokes;
+				data_stack[i]._namespace = namespace || keystrokes;
 				delete handler.data;
 				data_stack[i]._handler = handler;
 			}
@@ -222,27 +181,12 @@
 			var $elem = $(elem),
 				self = this,
 				temp_keys_down = $elem.data('keys_down');
-			
-			// We check to see if we want to capture keystrokes on input fields
-			if(!this.global.captureInputFields && $(event.target).not(':input').length == 0){
-			
-				if(!this._inputsBound){
-					
-					$(this.global.inputs).bind({
-						"focusin.Keystrokes" : function(e){
-							self._clearKeysString(elem);
-						},
-						"focusout.Keystrokes"  : function(e){
-							self._clearKeysString(elem);
-						}
-					});
-					
-					this._inputsBound = true;
-					
-				}
+				
+			// Make sure we only capture keystrokes on inputs if it is bound directly to the input
+			if(elem != event.target && (/textarea|select/i.test(event.target.nodeName) || event.target.type === "text")){
 				return;
 			}
-				
+			
 			temp_keys_down.push(event.keyCode);
 			$elem.data('keys_down', temp_keys_down);
 			$elem.data('joined', false);
@@ -264,13 +208,13 @@
 				keys_string = $elem.data('keys_string'),
 				stack_len = stack.length;
 			
-			// We check to see if we want to capture keystrokes on input fields
-			if(!this.global.captureInputFields && $(event.target).not(':input').length == 0){
+			// Make sure we only capture keystrokes on inputs if it is bound directly to the input
+			if(elem != event.target && (/textarea|select/i.test(event.target.nodeName) || event.target.type === "text")){
 				return;
 			}
 			
 			if(keys_down.length > 1){
-			
+				
 				keys_string.push(this._joinKeyCodesToString(elem));
 				$elem.data('keys_string', keys_string);
 				$elem.data('joined', true);
@@ -360,7 +304,7 @@
 			event[keystrokes]['stack'] = stack;
 			event[keystrokes].stack_item = stack[stack_arr_key];
 			
-			// Global custom validation
+			// Global custom validation (not documented)
 			if(typeof(this.global.customValidation) === 'function'){
 				var ret = this.global.customValidation.call(elem, event, stack);
 				if(!ret){
